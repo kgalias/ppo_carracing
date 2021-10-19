@@ -16,9 +16,7 @@ class ActorCritic(nn.Module):
             nn.ReLU(),
         )
 
-        self.pi = nn.Sequential(
-            nn.Linear(256 * 3 * 3, 128),
-        )
+        self.pi = nn.Linear(256 * 3 * 3, 128)
 
         self.mu = nn.Linear(128, 3)
 
@@ -27,9 +25,7 @@ class ActorCritic(nn.Module):
             nn.Softplus(),
         )
 
-        self.v = nn.Sequential(
-            nn.Linear(256 * 3 * 3, 1),
-        )
+        self.v = nn.Linear(256 * 3 * 3, 1)
 
     def forward(self, obs: torch.Tensor):
         conv = self.cnn(obs)
