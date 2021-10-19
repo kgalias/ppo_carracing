@@ -92,7 +92,6 @@ def main():
 
         running_rew = 0.05 * ep_rew + (1 - 0.05) * running_rew
         mlflow.log_metric('running_rew', running_rew)
-        print(f'Episode {i_episode}\tLast reward: {ep_rew:.2f}\tAverage reward: {running_rew:.2f}')
 
         traj_buf.calculate_norm_advantage_and_return(last_val)
 

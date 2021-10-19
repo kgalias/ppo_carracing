@@ -41,7 +41,6 @@ class PPOAgent(object):
 
     def learn(self, obs, act, old_act_log_prob, val, rew, adv, ret):
         for _ in range(self.n_ppo_epochs):
-            # TODO: create NamedTuple for buffer element (?)
             obs, act, old_act_log_prob = obs.to(self.device), act.to(self.device), old_act_log_prob.to(self.device)
             val, rew, adv, ret = val.to(self.device), rew.to(self.device), adv.to(self.device), ret.to(self.device)
             new_act_log_prob, v = self.evaluate(obs, act)
@@ -49,10 +48,7 @@ class PPOAgent(object):
             clip_adv = torch.clamp(ratio, 1 - self.epsilon, 1 + self.epsilon) * adv
             loss_pi = -torch.min(ratio * adv, clip_adv).mean()
 
-            # TODO: add value clipping (?)
-            # TODO: add early stopping for max KL (?)
-
-            loss_v = ((v - ret) ** 2).mean()  # TODO: Smooth L1 loss instead (?)
+            loss_v = ((v - ret) ** 2).mean()
             loss = loss_pi + self.vf_coef * loss_v
             mlflow.log_metric('loss', loss.item())
             mlflow.log_metric('policy loss', loss_pi.item())
@@ -64,7 +60,6 @@ class PPOAgent(object):
             clip_frac = torch.as_tensor(clipped, dtype=torch.float32).mean().item()
             mlflow.log_metric('approx_kl', approx_kl)
             mlflow.log_metric('clip_frac', clip_frac)
-            print(f'Loss {loss:.2f}\tPolicy loss: {loss_pi:.2f}\tCritic loss: {loss_v:.2f}')
 
             self.optimizer.zero_grad()
             loss.backward()
