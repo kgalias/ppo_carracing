@@ -36,8 +36,8 @@ class TestTrajectoryBuffer:
         example_tb.store(*example_args)
         assert example_tb.current_length == 1
 
-    # def test_retrieve(self):
-    #     assert False
-    #
-    # def test_calculate_norm_advantage_and_return(self):
-    #     assert False
+    def test_retrieve_when_not_full(self, example_tb, example_args):
+        example_tb.store(*example_args)
+        with pytest.raises(Exception):
+            _ = example_tb.retrieve()
+
