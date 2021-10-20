@@ -25,8 +25,8 @@ parser.add_argument('--max_grad_norm', type=float, default=0.5,
                     help='Maximum value for gradient clipping (default: 0.5)')
 parser.add_argument('--lam', type=float, default=0.95,
                     help='Lambda parameter for GAE (default: 0.95)')
-# parser.add_argument('--seed', type=int, default=543, metavar='N',
-#                     help='random seed (default: 543)')
+parser.add_argument('--lr', type=float, default=1e-3,
+                    help='Learning rate for optimization')
 parser.add_argument('--n_stack', type=int, default=4,
                     help='Number of frames for frame stack (default: 4)')
 parser.add_argument('--n_episodes', type=int, default=1000,
@@ -35,8 +35,6 @@ parser.add_argument('--n_steps', type=int, default=1000,
                     help='Number of steps per episode (default: 1000)')
 parser.add_argument('--render', action='store_true',
                     help='Render the environment')
-# parser.add_argument('--log-interval', type=int, default=10, metavar='N',
-#                     help='interval between training status logs (default: 10)')
 args = parser.parse_args()
 
 
@@ -57,7 +55,7 @@ def main():
                                 args.lam)
 
     actor_critic = ActorCritic(args.n_stack)
-    optimizer = Adam(actor_critic.parameters(), lr=1e-3)
+    optimizer = Adam(actor_critic.parameters(), args.lr)
     agent = PPOAgent(env, actor_critic, optimizer, device, args.n_ppo_epochs, args.epsilon, args.vf_coef,
                      args.max_grad_norm)
 
@@ -101,6 +99,5 @@ def main():
     env.close()
 
 
-main()
 if __name__ == '__main__':
     main()
