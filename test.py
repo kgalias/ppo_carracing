@@ -39,5 +39,5 @@ class TestTrajectoryBuffer:
     def test_retrieve_when_not_full(self, example_tb, example_args):
         example_tb.store(*example_args)
         with pytest.raises(Exception):
-            _ = example_tb.retrieve()
+            _ = example_tb.retrieve_and_clear()
 

@@ -34,7 +34,7 @@ class TrajectoryBuffer:
         self.capacity = length
 
     def store(self, obs: LazyFrames, act, act_log_prob, val, rew):
-        assert self.current_length < self.capacity
+        assert self.current_length < self.capacity, 'Buffer full, cannot store'
         self.obs[self.current_length] = obs_to_tensor(obs)
         self.act[self.current_length] = act
         self.act_log_prob[self.current_length] = act_log_prob
@@ -42,8 +42,8 @@ class TrajectoryBuffer:
         self.rew[self.current_length] = rew
         self.current_length += 1
 
-    def retrieve(self):
-        assert self.current_length == self.capacity
+    def retrieve_and_clear(self):
+        assert self.current_length == self.capacity, 'Buffer not full, cannot retrieve'
         self.current_length = 0
         return self.obs, self.act, self.act_log_prob, self.val, self.rew, self.adv, self.ret
 

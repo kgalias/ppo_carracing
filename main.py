@@ -93,7 +93,7 @@ def main():
 
         traj_buf.calculate_norm_advantage_and_return(last_val)
 
-        data = traj_buf.retrieve()
+        data = traj_buf.retrieve_and_clear()
         agent.learn(*data)
 
     env.close()
