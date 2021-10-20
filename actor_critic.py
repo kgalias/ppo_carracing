@@ -1,9 +1,11 @@
+from typing import Tuple
+
 import torch
 from torch import nn
 
 
 class ActorCritic(nn.Module):
-    def __init__(self, in_channels: int):
+    def __init__(self, in_channels: int) -> None:
         super(ActorCritic, self).__init__()
         self.cnn = nn.Sequential(  # (4, 64, 64)
             nn.Conv2d(in_channels=in_channels, out_channels=32, kernel_size=4, stride=2),  # (32, 31, 31)
@@ -27,7 +29,7 @@ class ActorCritic(nn.Module):
 
         self.v = nn.Linear(256 * 3 * 3, 1)
 
-    def forward(self, obs: torch.Tensor):
+    def forward(self, obs: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         conv = self.cnn(obs)
         conv = conv.view(-1, 256 * 3 * 3)  # reshape for dense
         pi = self.pi(conv)

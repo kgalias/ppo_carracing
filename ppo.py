@@ -7,13 +7,13 @@ from gym.wrappers import LazyFrames
 from torch.distributions import MultivariateNormal
 
 from actor_critic import ActorCritic
-from utils import obs_to_tensor
 from buffer import TrajectoryBatch
+from utils import obs_to_tensor
 
 
 class PPOAgent(object):
     def __init__(self, env: gym.Env, actor_critic: ActorCritic, optimizer: torch.optim.Optimizer,
-                 device: torch.device, n_ppo_epochs: int, epsilon: float, vf_coef: float, max_grad_norm: float):
+                 device: torch.device, n_ppo_epochs: int, epsilon: float, vf_coef: float, max_grad_norm: float) -> None:
         self.env = env
         self.actor_critic = actor_critic
         self.optimizer = optimizer
@@ -42,7 +42,7 @@ class PPOAgent(object):
         action_log_prob = dist.log_prob(action)
         return action_log_prob, v
 
-    def learn(self, batch: TrajectoryBatch):
+    def learn(self, batch: TrajectoryBatch) -> None:
         for _ in range(self.n_ppo_epochs):
             batch = batch.to(self.device)
             new_act_log_prob, v = self.evaluate(batch.obs, batch.act)
