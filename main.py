@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime
 
 import gym
 import mlflow
@@ -97,6 +98,9 @@ def main():
         agent.learn(*data)
 
     env.close()
+
+    now = datetime.now()
+    mlflow.pytorch.log_model(agent.actor_critic, f'{now.isoformat()}')
 
 
 if __name__ == '__main__':
