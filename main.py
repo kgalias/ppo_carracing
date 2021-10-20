@@ -29,8 +29,8 @@ parser.add_argument('--lr', type=float, default=1e-3,
                     help='Learning rate for optimization')
 parser.add_argument('--n_stack', type=int, default=4,
                     help='Number of frames for frame stack (default: 4)')
-parser.add_argument('--n_episodes', type=int, default=1000,
-                    help='Number of episodes (default: 1000)')
+parser.add_argument('--n_epochs', type=int, default=1000,
+                    help='Number of epochs (default: 1000)')
 parser.add_argument('--n_steps', type=int, default=1000,
                     help='Number of steps per episode (default: 1000)')
 parser.add_argument('--render', action='store_true',
@@ -63,7 +63,7 @@ def main():
 
     running_rew = 0
 
-    for i_episode in range(args.n_episodes):
+    for _ in range(args.n_epochs):
 
         obs = env.reset()
         ep_rew = 0.
