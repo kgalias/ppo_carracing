@@ -9,7 +9,8 @@ from torch.optim import Adam
 
 from actor_critic import ActorCritic
 from ppo import PPOAgent
-from utils import NumpifyAction, TrajectoryBuffer
+from utils import NumpifyAction, obs_to_tensor
+from buffer import TrajectoryBatch, TrajectoryBuffer
 
 gym.logger.set_level(40)
 
@@ -26,6 +27,8 @@ parser.add_argument('--max_grad_norm', type=float, default=0.5,
                     help='Maximum value for gradient clipping (default: 0.5)')
 parser.add_argument('--lam', type=float, default=0.95,
                     help='Lambda parameter for GAE (default: 0.95)')
+parser.add_argument('--normalize_adv', action='store_true',
+                    help='Normalize advantage')
 parser.add_argument('--lr', type=float, default=1e-3,
                     help='Learning rate for optimization')
 parser.add_argument('--n_stack', type=int, default=4,
@@ -53,7 +56,8 @@ def main():
                                 env.observation_space.shape,
                                 env.action_space.shape,
                                 args.gamma,
-                                args.lam)
+                                args.lam,
+                                args.normalize_adv)
 
     actor_critic = ActorCritic(args.n_stack)
     optimizer = Adam(actor_critic.parameters(), args.lr)
@@ -76,7 +80,9 @@ def main():
 
             ep_rew += rew
 
-            traj_buf.store(obs, act, act_log_prob, val, rew)
+            batch = TrajectoryBatch(obs=obs_to_tensor(obs), act=act, act_log_prob=act_log_prob, val=val,
+                                    rew=torch.Tensor([rew]))
+            traj_buf.store(batch)
 
             if args.render:
                 env.render()
@@ -95,7 +101,7 @@ def main():
         traj_buf.calculate_norm_advantage_and_return(last_val)
 
         data = traj_buf.retrieve_and_clear()
-        agent.learn(*data)
+        agent.learn(data)
 
     env.close()
 

@@ -4,7 +4,7 @@ import numpy as np
 from gym.wrappers import LazyFrames
 
 from actor_critic import ActorCritic
-from utils import TrajectoryBuffer
+from buffer import TrajectoryBuffer
 
 
 class TestActorCritic:

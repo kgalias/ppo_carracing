@@ -8,6 +8,7 @@ from torch.distributions import MultivariateNormal
 
 from actor_critic import ActorCritic
 from utils import obs_to_tensor
+from buffer import TrajectoryBatch
 
 
 class PPOAgent(object):
@@ -41,16 +42,16 @@ class PPOAgent(object):
         action_log_prob = dist.log_prob(action)
         return action_log_prob, v
 
-    def learn(self, obs, act, old_act_log_prob, val, rew, adv, ret):
+    def learn(self, batch: TrajectoryBatch):
         for _ in range(self.n_ppo_epochs):
-            obs, act, old_act_log_prob = obs.to(self.device), act.to(self.device), old_act_log_prob.to(self.device)
-            val, rew, adv, ret = val.to(self.device), rew.to(self.device), adv.to(self.device), ret.to(self.device)
-            new_act_log_prob, v = self.evaluate(obs, act)
+            batch = batch.to(self.device)
+            new_act_log_prob, v = self.evaluate(batch.obs, batch.act)
+            old_act_log_prob = batch.act_log_prob
             ratio = torch.exp(new_act_log_prob - old_act_log_prob)
-            clip_adv = torch.clamp(ratio, 1 - self.epsilon, 1 + self.epsilon) * adv
-            loss_pi = -torch.min(ratio * adv, clip_adv).mean()
+            clip_adv = torch.clamp(ratio, 1 - self.epsilon, 1 + self.epsilon) * batch.adv
+            loss_pi = -torch.min(ratio * batch.adv, clip_adv).mean()
 
-            loss_v = ((v - ret) ** 2).mean()
+            loss_v = ((v - batch.ret) ** 2).mean()
             loss = loss_pi + self.vf_coef * loss_v
             mlflow.log_metric('loss', loss.item())
             mlflow.log_metric('policy loss', loss_pi.item())
