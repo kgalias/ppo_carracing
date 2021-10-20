@@ -75,12 +75,13 @@ def main():
         last_val = 0.
 
         for t in range(args.n_steps):
+            obs = obs_to_tensor(obs)
             act, act_log_prob, val = agent.act(obs)
             next_obs, rew, done, _ = env.step(act)
 
             ep_rew += rew
 
-            batch = TrajectoryBatch(obs=obs_to_tensor(obs), act=act, act_log_prob=act_log_prob, val=val,
+            batch = TrajectoryBatch(obs=obs, act=act, act_log_prob=act_log_prob, val=val,
                                     rew=torch.Tensor([rew]))
             traj_buf.store(batch)
 

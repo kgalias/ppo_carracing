@@ -25,8 +25,8 @@ class PPOAgent(object):
         self.actor_critic.to(self.device)
 
     @torch.no_grad()
-    def act(self, obs: LazyFrames) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        obs = obs_to_tensor(obs).unsqueeze(0).to(self.device)
+    def act(self, obs: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        obs = obs.unsqueeze(0).to(self.device)
         mu, sigma, v = self.actor_critic(obs)
         dist = MultivariateNormal(mu, torch.diag_embed(sigma))  # diagonal covariance matrix
         action = dist.sample()
