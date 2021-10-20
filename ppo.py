@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import gym
 import mlflow
 import torch
@@ -22,7 +24,7 @@ class PPOAgent(object):
         self.actor_critic.to(self.device)
 
     @torch.no_grad()
-    def act(self, obs: LazyFrames):
+    def act(self, obs: LazyFrames) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         obs = obs_to_tensor(obs).unsqueeze(0).to(self.device)
         mu, sigma, v = self.actor_critic(obs)
         dist = MultivariateNormal(mu, torch.diag_embed(sigma))  # diagonal covariance matrix
@@ -33,7 +35,7 @@ class PPOAgent(object):
         action_log_prob = dist.log_prob(action)  # TODO: fix log_prob calculation for truncated normal
         return action, action_log_prob, v
 
-    def evaluate(self, obs: torch.Tensor, action: torch.Tensor):
+    def evaluate(self, obs: torch.Tensor, action: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         mu, sigma, v = self.actor_critic(obs)
         dist = MultivariateNormal(mu, torch.diag_embed(sigma))
         action_log_prob = dist.log_prob(action)
@@ -66,12 +68,9 @@ class PPOAgent(object):
 
             # track gradient norm
             parameters = [p for p in self.actor_critic.parameters() if p.grad is not None and p.requires_grad]
-            if len(parameters) == 0:
-                total_grad_norm = 0.0
-            else:
-                total_grad_norm = torch.norm(
-                    torch.stack([torch.norm(p.grad.detach()).to(self.device) for p in parameters]), 2.0
-                ).item()
+            total_grad_norm = torch.norm(
+                torch.stack([torch.norm(p.grad.detach()).to(self.device) for p in parameters]), 2.0
+            ).item()
             mlflow.log_metric('total_grad_norm', total_grad_norm)
 
             torch.nn.utils.clip_grad_norm_(self.actor_critic.parameters(), self.max_grad_norm)
