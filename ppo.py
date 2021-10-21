@@ -3,12 +3,10 @@ from typing import Tuple
 import gym
 import mlflow
 import torch
-from gym.wrappers import LazyFrames
 from torch.distributions import MultivariateNormal
 
 from actor_critic import ActorCritic
 from buffer import TrajectoryBatch
-from utils import obs_to_tensor
 
 
 class PPOAgent(object):
